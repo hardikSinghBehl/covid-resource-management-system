@@ -14,7 +14,7 @@ CREATE trigger master_resource_types_updation_timestamp_trigger
    for each row EXECUTE procedure updation_timestamp_handler();
    
    
-CREATE TABLE users {
+CREATE TABLE users (
   id UUID NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
   email_id CHARACTER VARYING (50) NOT NULL UNIQUE,
   password CHARACTER VARYING (100) NOT NULL,
@@ -162,4 +162,5 @@ CREATE trigger comments_creation_timestamp_trigger
 CREATE trigger comments_updation_timestamp_trigger
    BEFORE UPDATE ON comments
    for each row EXECUTE procedure updation_timestamp_handler();
+
 
