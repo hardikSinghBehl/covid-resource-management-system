@@ -1,7 +1,5 @@
 package com.hardik.pomfrey.service;
 
-import javax.validation.Valid;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -18,19 +16,20 @@ public class UserService {
 
 	private final UserRepository userRepository;
 
-	public ResponseEntity<?> create(@Valid UserCreationRequest userCreationRequest) {
+	public ResponseEntity<?> create(final UserCreationRequest userCreationRequest) {
 		return null;
 	}
 
-	public ResponseEntity<?> update(@Valid UserUpdationRequest userUpdationRequest) {
+	public ResponseEntity<?> update(final UserUpdationRequest userUpdationRequest, final String emailId) {
 		return null;
 	}
 
-	public ResponseEntity<?> update(@Valid UserPasswordUpdationRequest userPasswordUpdationRequest) {
+	public ResponseEntity<?> update(final UserPasswordUpdationRequest userPasswordUpdationRequest,
+			final String emailId) {
 		return null;
 	}
 
-	public ResponseEntity<?> retrieve(String emailId) {
+	public ResponseEntity<?> retrieve(final String emailId) {
 		return null;
 	}
 

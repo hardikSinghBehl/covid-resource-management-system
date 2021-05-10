@@ -14,7 +14,7 @@ public class ReportMappingService {
 
 	private final ReportMappingRepository reportMappingRepository;
 
-	public ResponseEntity<?> create(final ReportCreationRequest reportCreationRequest, final String string) {
+	public ResponseEntity<?> create(final ReportCreationRequest reportCreationRequest, final String emailId) {
 		return null;
 	}
 

@@ -49,7 +49,8 @@ public class UserController {
 	@Operation(summary = "Updates The Details Of The User In The Database")
 	public ResponseEntity<?> userDetailUpdationHandler(
 			@Valid @RequestBody(required = true) final UserUpdationRequest userUpdationRequest) {
-		return userService.update(userUpdationRequest);
+		return userService.update(userUpdationRequest,
+				SecurityContextHolder.getContext().getAuthentication().getName());
 	}
 
 	@PutMapping(value = "/password", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -57,7 +58,8 @@ public class UserController {
 	@Operation(summary = "Changes User's Password If Old Password Was Correctly Provided")
 	public ResponseEntity<?> userPasswordUpdationHandler(
 			@Valid @RequestBody(required = true) final UserPasswordUpdationRequest userPasswordUpdationRequest) {
-		return userService.update(userPasswordUpdationRequest);
+		return userService.update(userPasswordUpdationRequest,
+				SecurityContextHolder.getContext().getAuthentication().getName());
 	}
 
 }
