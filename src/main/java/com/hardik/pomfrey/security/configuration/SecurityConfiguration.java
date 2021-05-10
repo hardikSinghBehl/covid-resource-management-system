@@ -1,5 +1,7 @@
 package com.hardik.pomfrey.security.configuration;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -8,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.hardik.pomfrey.constants.ApiPathExclusion;
 import com.hardik.pomfrey.security.CustomUserDetailService;
 import com.hardik.pomfrey.security.filter.JwtAuthenticationFilter;
 
@@ -32,9 +35,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 		http.cors().and().csrf().disable().exceptionHandling().and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-				.antMatchers("/user/**", "/v2/api-docs", "/swagger-resources/configuration/ui", "/swagger-resources",
-						"/swagger-resources/configuration/security", "/swagger-ui.html", "/webjars/**",
-						"/swagger-ui/**", "/v3/api-docs/**", "/configuration/**", "/swagger*/**")
+				.antMatchers(List.of(ApiPathExclusion.values()).stream().map(apiPath -> apiPath.getPath())
+						.toArray(String[]::new))
 				.permitAll().anyRequest().authenticated().and()
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 	}
