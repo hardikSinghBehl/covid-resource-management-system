@@ -15,7 +15,7 @@
 	<name>covid-resource-management-system</name>
 	<description>Covid-19 Resource Management System using Spring Boot: Submission for JIMS Hackathon: 2021 under theme community help during covid</description>
 	<properties>
-		<java.version>16</java.version>
+		<java.version>15</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
