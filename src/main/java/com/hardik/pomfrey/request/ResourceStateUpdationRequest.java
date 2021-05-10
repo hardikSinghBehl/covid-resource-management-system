@@ -12,17 +12,10 @@ import lombok.extern.jackson.Jacksonized;
 @Getter
 @Builder
 @Jacksonized
-public class RequestStateUpdationRequest {
+public class ResourceStateUpdationRequest {
 
 	@Schema(description = "Request-Id", example = "4285f896-3afa-4763-8373-ea6279a1aa2e", required = true)
 	@NotBlank
 	private final UUID id;
-
-	@Schema(description = "Request Fulfilled", example = "true/false", required = true)
-	@NotBlank
-	private final Boolean fulfilled;
-
-	@Schema(description = "Fulfilled By Email-Id", example = "hardik.behl7444@gmail.com", required = false)
-	private final String fulfilledByEmailId;
 
 }
