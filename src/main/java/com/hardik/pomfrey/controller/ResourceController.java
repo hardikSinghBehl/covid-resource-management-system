@@ -17,9 +17,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hardik.pomfrey.dto.ResourceDto;
+import com.hardik.pomfrey.entity.MasterResourceType;
 import com.hardik.pomfrey.request.ResourceCreationRequest;
 import com.hardik.pomfrey.request.ResourceDetailUpdationRequest;
 import com.hardik.pomfrey.request.ResourceStateUpdationRequest;
+import com.hardik.pomfrey.service.MasterResourceTypeService;
 import com.hardik.pomfrey.service.ResourceService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,6 +33,15 @@ import lombok.AllArgsConstructor;
 public class ResourceController {
 
 	private final ResourceService resourceService;
+
+	private final MasterResourceTypeService masterResourceTypeService;
+
+	@GetMapping(value = "/type", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseStatus(HttpStatus.OK)
+	@Operation(summary = "Returns List Of Master Resource Types Available")
+	public ResponseEntity<List<MasterResourceType>> resourceTypeRetreivalHandler() {
+		return masterResourceTypeService.retreive();
+	}
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.OK)
