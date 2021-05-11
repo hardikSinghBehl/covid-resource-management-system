@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hardik.pomfrey.dto.UserDetailDto;
 import com.hardik.pomfrey.request.UserCreationRequest;
 import com.hardik.pomfrey.request.UserPasswordUpdationRequest;
 import com.hardik.pomfrey.request.UserUpdationRequest;
@@ -32,7 +33,7 @@ public class UserController {
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.OK)
 	@Operation(summary = "Returns User Details Of The Logged In User")
-	public ResponseEntity<?> retreive() {
+	public ResponseEntity<UserDetailDto> retreive() {
 		return userService.retrieve(SecurityContextHolder.getContext().getAuthentication().getName());
 	}
 
