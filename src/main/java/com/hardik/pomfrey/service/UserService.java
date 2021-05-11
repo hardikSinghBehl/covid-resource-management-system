@@ -1,15 +1,24 @@
 package com.hardik.pomfrey.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.hardik.pomfrey.constants.Response;
 import com.hardik.pomfrey.dto.UserDetailDto;
 import com.hardik.pomfrey.entity.User;
+import com.hardik.pomfrey.repository.RequestRepository;
 import com.hardik.pomfrey.repository.UserRepository;
 import com.hardik.pomfrey.request.UserCreationRequest;
 import com.hardik.pomfrey.request.UserPasswordUpdationRequest;
@@ -27,6 +36,8 @@ public class UserService {
 	private final PasswordEncoder passwordEncoder;
 
 	private final ResponseEntityUtils responseEntityUtils;
+
+	private final RequestRepository requestRepository;
 
 	public ResponseEntity<?> create(final UserCreationRequest userCreationRequest) {
 		final var user = new User();
@@ -77,6 +88,43 @@ public class UserService {
 		return ResponseEntity.ok(UserDetailDto.builder().contactNumber(user.getContactNumber())
 				.emailId(user.getEmailId()).firstName(user.getFirstName()).lastName(user.getLastName())
 				.longitude(location.getX()).latitude(location.getY()).build());
+	}
+
+	public ResponseEntity<?> retreiveCredibility(String emailId) {
+		final var response = new JSONObject();
+
+		final var user = userRepository.findByEmailId(emailId).get();
+		final var credibility = requestRepository.findByFulfilledByUserId(user.getId()).size();
+
+		try {
+			response.put(Response.KEY.STATUS, HttpStatus.OK.value());
+			response.put(Response.KEY.CREDIBILITY, credibility);
+			response.put(Response.KEY.TIMESTAMP, LocalDateTime.now().toString());
+
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return ResponseEntity.ok(response.toString());
+	}
+
+	public ResponseEntity<List<UserDetailDto>> rereiveFollowers(String emailId) {
+		final var user = userRepository.findByEmailId(emailId).get();
+		return ResponseEntity.ok(user.getFollowers().parallelStream().map(follower -> {
+			final var followerUser = follower.getFollowerUser();
+			return UserDetailDto.builder().contactNumber(followerUser.getContactNumber())
+					.emailId(followerUser.getEmailId()).firstName(followerUser.getFirstName())
+					.lastName(followerUser.getLastName()).build();
+		}).collect(Collectors.toList()));
+	}
+
+	public ResponseEntity<List<UserDetailDto>> rereiveFollowing(String emailId) {
+		final var user = userRepository.findByEmailId(emailId).get();
+		return ResponseEntity.ok(user.getFollowers().parallelStream().map(follower -> {
+			final var followerUser = follower.getFollowedUser();
+			return UserDetailDto.builder().contactNumber(followerUser.getContactNumber())
+					.emailId(followerUser.getEmailId()).firstName(followerUser.getFirstName())
+					.lastName(followerUser.getLastName()).build();
+		}).collect(Collectors.toList()));
 	}
 
 }

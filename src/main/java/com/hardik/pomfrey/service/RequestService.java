@@ -1,8 +1,12 @@
 package com.hardik.pomfrey.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.hardik.pomfrey.dto.RequestDto;
 import com.hardik.pomfrey.entity.Request;
 import com.hardik.pomfrey.repository.RequestRepository;
 import com.hardik.pomfrey.repository.UserRepository;
@@ -73,6 +77,18 @@ public class RequestService {
 		requestRepository.save(request);
 
 		return responseEntityUtils.generateRequestUpdationResponse();
+	}
+
+	public ResponseEntity<List<RequestDto>> retreiveForUser(String emailId) {
+		final var user = userRepository.findByEmailId(emailId).get();
+		return ResponseEntity.ok(user.getRequested().parallelStream().map(request -> {
+			final var requestedByUser = request.getRequestedByUser();
+			final var location = request.getLocation();
+			return RequestDto.builder().description(request.getDescription()).emailId(requestedByUser.getEmailId())
+					.fullName(requestedByUser.getFirstName() + " " + requestedByUser.getLastName()).id(request.getId())
+					.isActive(request.getIsActive()).title(request.getTitle()).latitude(location.getY())
+					.longitude(location.getX()).resourceType(request.getResourceType().getName()).build();
+		}).collect(Collectors.toList()));
 	}
 
 }

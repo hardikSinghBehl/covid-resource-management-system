@@ -1,8 +1,12 @@
 package com.hardik.pomfrey.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.hardik.pomfrey.dto.ResourceDto;
 import com.hardik.pomfrey.entity.Resource;
 import com.hardik.pomfrey.repository.ResourceRepository;
 import com.hardik.pomfrey.repository.UserRepository;
@@ -67,6 +71,17 @@ public class ResourceService {
 		resourceRepository.save(resource);
 
 		return responseEntityUtils.generateResourceUpdationResponse();
+	}
+
+	public ResponseEntity<List<ResourceDto>> retreiveForUser(String emailId) {
+		final var user = userRepository.findByEmailId(emailId).get();
+		return ResponseEntity.ok(user.getResources().parallelStream()
+				.map(resource -> ResourceDto.builder().count(resource.getCount()).description(resource.getDescription())
+						.emailId(user.getEmailId()).fullName(user.getFirstName() + " " + user.getLastName())
+						.id(resource.getId()).isActive(resource.getIsActive()).title(resource.getTitle())
+						.longitude(resource.getLocation().getX()).latitude(resource.getLocation().getY())
+						.resourceType(resource.getResourceType().getName()).build())
+				.collect(Collectors.toList()));
 	}
 
 }

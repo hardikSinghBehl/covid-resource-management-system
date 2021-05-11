@@ -1,5 +1,7 @@
 package com.hardik.pomfrey.controller;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -35,6 +37,27 @@ public class UserController {
 	@Operation(summary = "Returns User Details Of The Logged In User")
 	public ResponseEntity<UserDetailDto> retreive() {
 		return userService.retrieve(SecurityContextHolder.getContext().getAuthentication().getName());
+	}
+
+	@GetMapping(value = "/credibility", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseStatus(HttpStatus.OK)
+	@Operation(summary = "Returns Credibility Points Of The Logged In User")
+	public ResponseEntity<?> userCredibilityPointReteivalHandler() {
+		return userService.retreiveCredibility(SecurityContextHolder.getContext().getAuthentication().getName());
+	}
+
+	@GetMapping(value = "/followers", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseStatus(HttpStatus.OK)
+	@Operation(summary = "Returns List Of Users That Follow Logged In User")
+	public ResponseEntity<List<UserDetailDto>> userFollowersReteivalHandler() {
+		return userService.rereiveFollowers(SecurityContextHolder.getContext().getAuthentication().getName());
+	}
+
+	@GetMapping(value = "/following", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseStatus(HttpStatus.OK)
+	@Operation(summary = "Returns List Of Users That Logged In User Follows")
+	public ResponseEntity<List<UserDetailDto>> userFollowingReteivalHandler() {
+		return userService.rereiveFollowing(SecurityContextHolder.getContext().getAuthentication().getName());
 	}
 
 	@PostMapping(value = "/pre-register/create", produces = MediaType.APPLICATION_JSON_VALUE)

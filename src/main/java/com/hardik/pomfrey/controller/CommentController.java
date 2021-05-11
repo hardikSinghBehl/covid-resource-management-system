@@ -1,5 +1,6 @@
 package com.hardik.pomfrey.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.validation.Valid;
@@ -9,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hardik.pomfrey.dto.CommentDto;
 import com.hardik.pomfrey.request.CommentCreationRequest;
 import com.hardik.pomfrey.service.CommentService;
 
@@ -28,6 +31,14 @@ import lombok.AllArgsConstructor;
 public class CommentController {
 
 	private final CommentService commentService;
+
+	@GetMapping(value = "/{contextId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseStatus(HttpStatus.OK)
+	@Operation(summary = "Returns List Of Comments For Provided Context (Request/Resource/Comment)")
+	public ResponseEntity<List<CommentDto>> commentReteivalHandler(
+			@PathVariable(name = "contextId", required = true) final UUID contextId) {
+		return commentService.retreive(contextId);
+	}
 
 	@PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.OK)

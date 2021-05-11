@@ -10,6 +10,7 @@ public class Response {
 
 	public class Key {
 
+		public final String CREDIBILITY = "credibility";
 		public final String STATUS = "status";
 		public final String MESSAGE = "message";
 		public final String TIMESTAMP = "timestamp";

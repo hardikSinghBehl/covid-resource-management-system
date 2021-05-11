@@ -1,10 +1,13 @@
 package com.hardik.pomfrey.service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.hardik.pomfrey.dto.CommentDto;
 import com.hardik.pomfrey.entity.Comment;
 import com.hardik.pomfrey.repository.CommentRepository;
 import com.hardik.pomfrey.repository.UserRepository;
@@ -46,6 +49,15 @@ public class CommentService {
 
 		commentRepository.deleteById(comment.getId());
 		return responseEntityUtils.generateCommentDeletionResponse();
+	}
+
+	public ResponseEntity<List<CommentDto>> retreive(UUID contextId) {
+		return ResponseEntity.ok(commentRepository.findByItemId(contextId).parallelStream().map(comment -> {
+			final var user = comment.getUser();
+			return CommentDto.builder().createdAt(comment.getCreatedAt()).emailId(user.getEmailId())
+					.fullName(user.getFirstName() + " " + user.getLastName()).id(comment.getId())
+					.text(comment.getText()).build();
+		}).sorted((a, b) -> a.getCreatedAt().compareTo(b.getCreatedAt())).collect(Collectors.toList()));
 	}
 
 }
