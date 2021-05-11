@@ -1,0 +1,21 @@
+version: '3'
+services:
+  database:
+    image: postgres
+    ports:
+    - 6432:5432
+    environment:
+      POSTGRES_DB: pomfrey
+      POSTGRES_USER: pomfrey
+      POSTGRES_PASSWORD: pomfrey
+  service:
+    build: .
+    ports:
+    - 9090:8080
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database/pomfrey
+      SPRING_DATASOURCE_USERNAME: pomfrey
+      SPRING_DATASOURCE_PASSWORD: pomfrey
+      SERVER_SERVLET_CONTEXT_PATH: /pomfrey
+    depends_on:
+    - database
