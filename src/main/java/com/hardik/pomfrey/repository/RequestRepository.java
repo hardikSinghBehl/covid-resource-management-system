@@ -17,6 +17,6 @@ public interface RequestRepository extends JpaRepository<Request, UUID> {
 
 	@Query(nativeQuery = true, value = "SELECT *, SQRT(\n" + "    POW(69.1 * (latitude - ?1), 2) +\n"
 			+ "    POW(69.1 * (?2 - longitude) * COS(latitude / 57.3), 2)) AS distance\n"
-			+ "FROM requests ORDER BY distance DESC;")
+			+ "FROM requests WHERE is_active = true ORDER BY distance DESC;")
 	List<Request> findNearestRequests(Double latitude, Double longitude, Pageable pageable);
 }
