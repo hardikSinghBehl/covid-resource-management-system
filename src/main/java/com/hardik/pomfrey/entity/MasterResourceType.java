@@ -15,6 +15,7 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.Data;
 import lombok.EqualsAndHashCode.Exclude;
 
@@ -39,11 +40,13 @@ public class MasterResourceType implements Serializable {
 	@Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
 	private LocalDateTime updatedAt;
 
+	@Hidden
 	@Exclude
 	@JsonIgnore
 	@OneToMany(mappedBy = "resourceType", fetch = FetchType.LAZY)
 	private Set<Request> requests;
 
+	@Hidden
 	@Exclude
 	@JsonIgnore
 	@OneToMany(mappedBy = "resourceType", fetch = FetchType.LAZY)

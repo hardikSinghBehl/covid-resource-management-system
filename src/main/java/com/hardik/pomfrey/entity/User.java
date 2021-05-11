@@ -18,6 +18,7 @@ import org.locationtech.jts.geom.Point;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.Data;
 import lombok.EqualsAndHashCode.Exclude;
 
@@ -60,36 +61,43 @@ public class User implements Serializable {
 	@Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
 	private LocalDateTime updatedAt;
 
+	@Hidden
 	@Exclude
 	@JsonIgnore
 	@OneToMany(mappedBy = "requestedByUser", fetch = FetchType.LAZY)
 	private Set<Request> requested;
 
+	@Hidden
 	@Exclude
 	@JsonIgnore
 	@OneToMany(mappedBy = "fulfilledByUser", fetch = FetchType.LAZY)
 	private Set<Request> fulfilled;
 
+	@Hidden
 	@Exclude
 	@JsonIgnore
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	private Set<Resource> resources;
 
+	@Hidden
 	@Exclude
 	@JsonIgnore
 	@OneToMany(mappedBy = "followerUser", fetch = FetchType.LAZY)
 	private Set<FollowMapping> following;
 
+	@Hidden
 	@Exclude
 	@JsonIgnore
 	@OneToMany(mappedBy = "followedUser", fetch = FetchType.LAZY)
 	private Set<FollowMapping> followers;
 
+	@Hidden
 	@Exclude
 	@JsonIgnore
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	private Set<ReportMapping> reports;
 
+	@Hidden
 	@Exclude
 	@JsonIgnore
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)

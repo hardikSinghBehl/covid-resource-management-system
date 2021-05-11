@@ -15,6 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.Data;
 import lombok.EqualsAndHashCode.Exclude;
 
@@ -33,6 +34,7 @@ public class ReportMapping implements Serializable {
 	@Column(name = "user_id", nullable = false)
 	private UUID userId;
 
+	@Hidden
 	@Exclude
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)

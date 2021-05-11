@@ -14,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.Data;
 import lombok.EqualsAndHashCode.Exclude;
 
@@ -32,6 +33,7 @@ public class FollowMapping implements Serializable {
 	@Column(name = "follower_user_id", nullable = false)
 	private UUID followerUserId;
 
+	@Hidden
 	@Exclude
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "follower_user_id", nullable = false, insertable = false, updatable = false)
@@ -40,6 +42,7 @@ public class FollowMapping implements Serializable {
 	@Column(name = "followed_user_id", nullable = false)
 	private UUID followedUserId;
 
+	@Hidden
 	@Exclude
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "followed_user_id", nullable = false, insertable = false, updatable = false)

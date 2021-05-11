@@ -16,6 +16,7 @@ import javax.persistence.Table;
 
 import org.locationtech.jts.geom.Point;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.Data;
 import lombok.EqualsAndHashCode.Exclude;
 
@@ -34,6 +35,7 @@ public class Request implements Serializable {
 	@Column(name = "resource_type_id", nullable = false)
 	private Integer resourceTypeId;
 
+	@Hidden
 	@Exclude
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "resource_type_id", nullable = false, insertable = false, updatable = false)
@@ -42,6 +44,7 @@ public class Request implements Serializable {
 	@Column(name = "requested_by_user_id", nullable = false)
 	private UUID requestedByUserId;
 
+	@Hidden
 	@Exclude
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "requested_by_user_id", nullable = false, insertable = false, updatable = false)
@@ -62,6 +65,7 @@ public class Request implements Serializable {
 	@Column(name = "fulfilled_by_user_id", nullable = true)
 	private UUID fulfilledByUserId;
 
+	@Hidden
 	@Exclude
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "fulfilled_by_user_id", nullable = true, insertable = false, updatable = false)
