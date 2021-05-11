@@ -1,6 +1,4 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION postgis;
-CREATE EXTENSION postgis_topology;
  
 CREATE OR REPLACE FUNCTION creation_timestamp_handler()
   returns trigger
