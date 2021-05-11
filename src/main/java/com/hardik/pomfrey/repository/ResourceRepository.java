@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.hardik.pomfrey.entity.Request;
 import com.hardik.pomfrey.entity.Resource;
 
 @Repository
@@ -17,6 +16,6 @@ public interface ResourceRepository extends JpaRepository<Resource, UUID> {
 	@Query(nativeQuery = true, value = "SELECT *, SQRT(\n" + "    POW(69.1 * (latitude - ?1), 2) +\n"
 			+ "    POW(69.1 * (?2 - longitude) * COS(latitude / 57.3), 2)) AS distance\n"
 			+ "FROM resources ORDER BY distance DESC;")
-	List<Request> findNearestResources(Double latitude, Double longitude, Pageable pageable);
+	List<Resource> findNearestResources(Double latitude, Double longitude, Pageable pageable);
 
 }

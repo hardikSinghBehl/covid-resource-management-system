@@ -32,6 +32,13 @@ public class ResourceController {
 
 	private final ResourceService resourceService;
 
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseStatus(HttpStatus.OK)
+	@Operation(summary = "Returns List Of Resources Nearest To The Logged In User")
+	public ResponseEntity<List<ResourceDto>> nearestResourcesReteivalHandler() {
+		return resourceService.reteive(SecurityContextHolder.getContext().getAuthentication().getName());
+	}
+
 	@GetMapping("/user")
 	@ResponseStatus(HttpStatus.OK)
 	@Operation(summary = "Returns List Of Resources That User Has Submitted")

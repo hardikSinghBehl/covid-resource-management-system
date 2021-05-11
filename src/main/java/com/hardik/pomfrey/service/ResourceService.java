@@ -3,6 +3,7 @@ package com.hardik.pomfrey.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -86,6 +87,22 @@ public class ResourceService {
 						.longitude(resource.getLongitude()).latitude(resource.getLatitude())
 						.resourceType(resource.getResourceType().getName()).build())
 				.collect(Collectors.toList()));
+	}
+
+	public ResponseEntity<List<ResourceDto>> reteive(String emailId) {
+		final var user = userRepository.findByEmailId(emailId).get();
+		return ResponseEntity.ok(
+				resourceRepository.findNearestResources(user.getLatitude(), user.getLongitude(), PageRequest.of(0, 50))
+						.parallelStream().map(resource -> {
+							final var resourceOwner = resource.getUser();
+							return ResourceDto.builder().count(resource.getCount())
+									.description(resource.getDescription()).emailId(resourceOwner.getEmailId())
+									.fullName(resourceOwner.getFirstName() + " " + resourceOwner.getLastName())
+									.id(resource.getId()).isActive(resource.getIsActive())
+									.latitude(resource.getLatitude()).longitude(resource.getLongitude())
+									.resourceType(resource.getResourceType().getName()).title(resource.getTitle())
+									.build();
+						}).collect(Collectors.toList()));
 	}
 
 }

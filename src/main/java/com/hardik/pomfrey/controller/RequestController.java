@@ -32,7 +32,14 @@ public class RequestController {
 
 	private final RequestService requestService;
 
-	@GetMapping("/user")
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseStatus(HttpStatus.OK)
+	@Operation(summary = "Returns List Of Requests Nearest To The Logged In User")
+	public ResponseEntity<List<RequestDto>> nearestRequestsReteivalHandler() {
+		return requestService.reteive(SecurityContextHolder.getContext().getAuthentication().getName());
+	}
+
+	@GetMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.OK)
 	@Operation(summary = "Returns List Of Requests That User Has Submitted")
 	public ResponseEntity<List<RequestDto>> requestsForUserRetreivalHandler() {
