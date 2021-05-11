@@ -36,7 +36,8 @@ public class RequestService {
 		request.setDescription(requestCreationRequest.getDescription());
 		request.setIsActive(true);
 		request.setRequestedByUserId(user.getId());
-		request.setLocation(null);
+		request.setLatitude(requestCreationRequest.getLatitude());
+		request.setLongitude(requestCreationRequest.getLongitude());
 
 		requestRepository.save(request);
 
@@ -52,7 +53,8 @@ public class RequestService {
 			return responseEntityUtils.generateUnauthorizedResponse();
 
 		request.setDescription(requestDetailUpdationRequest.getDescription());
-		request.setLocation(null);
+		request.setLatitude(requestDetailUpdationRequest.getLatitude());
+		request.setLongitude(requestDetailUpdationRequest.getLongitude());
 
 		requestRepository.save(request);
 
@@ -83,11 +85,10 @@ public class RequestService {
 		final var user = userRepository.findByEmailId(emailId).get();
 		return ResponseEntity.ok(user.getRequested().parallelStream().map(request -> {
 			final var requestedByUser = request.getRequestedByUser();
-			final var location = request.getLocation();
 			return RequestDto.builder().description(request.getDescription()).emailId(requestedByUser.getEmailId())
 					.fullName(requestedByUser.getFirstName() + " " + requestedByUser.getLastName()).id(request.getId())
-					.isActive(request.getIsActive()).title(request.getTitle()).latitude(location.getY())
-					.longitude(location.getX()).resourceType(request.getResourceType().getName()).build();
+					.isActive(request.getIsActive()).title(request.getTitle()).latitude(request.getLatitude())
+					.longitude(request.getLongitude()).resourceType(request.getResourceType().getName()).build();
 		}).collect(Collectors.toList()));
 	}
 

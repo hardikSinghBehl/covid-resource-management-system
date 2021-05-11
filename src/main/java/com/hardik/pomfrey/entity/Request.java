@@ -14,8 +14,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.locationtech.jts.geom.Point;
-
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.Data;
 import lombok.EqualsAndHashCode.Exclude;
@@ -56,8 +54,11 @@ public class Request implements Serializable {
 	@Column(name = "description", nullable = false)
 	private String description;
 
-	@Column(name = "location", nullable = false)
-	private Point location;
+	@Column(name = "latitude", nullable = false)
+	private Double latitude;
+
+	@Column(name = "longitude", nullable = false)
+	private Double longitude;
 
 	@Column(name = "is_active", nullable = false)
 	private Boolean isActive;

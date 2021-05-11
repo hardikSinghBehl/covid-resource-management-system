@@ -14,8 +14,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.locationtech.jts.geom.Point;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.swagger.v3.oas.annotations.Hidden;
@@ -52,8 +50,11 @@ public class User implements Serializable {
 	@Column(name = "state_id", nullable = false)
 	private Integer stateId;
 
-	@Column(name = "location", nullable = false)
-	private Point location;
+	@Column(name = "latitude", nullable = false)
+	private Double latitude;
+
+	@Column(name = "longitude", nullable = false)
+	private Double longitude;
 
 	@Column(name = "created_at", nullable = false, insertable = false, updatable = false)
 	private LocalDateTime createdAt;

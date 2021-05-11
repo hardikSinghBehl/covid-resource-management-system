@@ -4,10 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.CoordinateSequence;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
@@ -47,8 +43,8 @@ public class UserService {
 		user.setEmailId(userCreationRequest.getEmailId());
 		user.setStateId(userCreationRequest.getStateId());
 		user.setPassword(passwordEncoder.encode(userCreationRequest.getPassword()));
-		user.setLocation(new Point((CoordinateSequence) new Coordinate(userCreationRequest.getLongitude(),
-				userCreationRequest.getLatitude()), new GeometryFactory()));
+		user.setLongitude(userCreationRequest.getLongitude());
+		user.setLatitude(userCreationRequest.getLatitude());
 
 		userRepository.save(user);
 
@@ -61,8 +57,8 @@ public class UserService {
 		user.setLastName(userUpdationRequest.getLastName());
 		user.setContactNumber(userUpdationRequest.getContactNumber());
 		user.setStateId(userUpdationRequest.getStateId());
-		user.setLocation(new Point((CoordinateSequence) new Coordinate(userUpdationRequest.getLongitude(),
-				userUpdationRequest.getLatitude()), new GeometryFactory()));
+		user.setLongitude(userUpdationRequest.getLongitude());
+		user.setLatitude(userUpdationRequest.getLatitude());
 
 		userRepository.save(user);
 
@@ -84,10 +80,9 @@ public class UserService {
 
 	public ResponseEntity<UserDetailDto> retrieve(final String emailId) {
 		final var user = userRepository.findByEmailId(emailId).get();
-		Point location = user.getLocation();
 		return ResponseEntity.ok(UserDetailDto.builder().contactNumber(user.getContactNumber())
 				.emailId(user.getEmailId()).firstName(user.getFirstName()).lastName(user.getLastName())
-				.longitude(location.getX()).latitude(location.getY()).build());
+				.longitude(user.getLongitude()).latitude(user.getLatitude()).build());
 	}
 
 	public ResponseEntity<?> retreiveCredibility(String emailId) {

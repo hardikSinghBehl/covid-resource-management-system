@@ -37,6 +37,8 @@ public class ResourceService {
 		resource.setResourceTypeId(resourceCreationRequest.getResourceTypeId());
 		resource.setTitle(resourceCreationRequest.getTitle());
 		resource.setUserId(user.getId());
+		resource.setLatitude(resourceCreationRequest.getLatitude());
+		resource.setLongitude(resourceCreationRequest.getLongitude());
 
 		resourceRepository.save(resource);
 
@@ -53,6 +55,8 @@ public class ResourceService {
 
 		resource.setCount(resourceDetailUpdationRequest.getCount());
 		resource.setDescription(resourceDetailUpdationRequest.getDescription());
+		resource.setLatitude(resourceDetailUpdationRequest.getLatitude());
+		resource.setLongitude(resourceDetailUpdationRequest.getLongitude());
 
 		resourceRepository.save(resource);
 
@@ -79,7 +83,7 @@ public class ResourceService {
 				.map(resource -> ResourceDto.builder().count(resource.getCount()).description(resource.getDescription())
 						.emailId(user.getEmailId()).fullName(user.getFirstName() + " " + user.getLastName())
 						.id(resource.getId()).isActive(resource.getIsActive()).title(resource.getTitle())
-						.longitude(resource.getLocation().getX()).latitude(resource.getLocation().getY())
+						.longitude(resource.getLongitude()).latitude(resource.getLatitude())
 						.resourceType(resource.getResourceType().getName()).build())
 				.collect(Collectors.toList()));
 	}
