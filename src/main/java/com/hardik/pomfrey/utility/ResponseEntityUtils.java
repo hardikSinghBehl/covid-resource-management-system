@@ -9,9 +9,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.hardik.pomfrey.constants.Response;
+import com.hardik.pomfrey.entity.User;
+import com.hardik.pomfrey.security.utility.JwtUtils;
+
+import lombok.AllArgsConstructor;
 
 @Component
+@AllArgsConstructor
 public class ResponseEntityUtils {
+
+	private final JwtUtils jwtUtils;
 
 	public ResponseEntity<?> generateUserAccountCreationResponse() {
 		final var response = new JSONObject();
@@ -165,6 +172,17 @@ public class ResponseEntityUtils {
 			response.put(Response.KEY.TIMESTAMP, LocalDateTime.now().toString());
 		} catch (JSONException e) {
 			e.printStackTrace();
+		}
+		return ResponseEntity.ok(response.toString());
+	}
+
+	public ResponseEntity<?> generateSuccessLoginResponse(User user) {
+		final var response = new JSONObject();
+		try {
+			response.put("status", HttpStatus.OK.value());
+			response.put("jwt", jwtUtils.generateToken(user));
+		} catch (JSONException exception) {
+			exception.printStackTrace();
 		}
 		return ResponseEntity.ok(response.toString());
 	}

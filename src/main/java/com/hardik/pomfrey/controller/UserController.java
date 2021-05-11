@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hardik.pomfrey.dto.UserDetailDto;
 import com.hardik.pomfrey.request.UserCreationRequest;
+import com.hardik.pomfrey.request.UserLoginRequest;
 import com.hardik.pomfrey.request.UserPasswordUpdationRequest;
 import com.hardik.pomfrey.request.UserUpdationRequest;
 import com.hardik.pomfrey.service.UserService;
@@ -71,6 +72,14 @@ public class UserController {
 	public ResponseEntity<?> userCreationHandler(
 			@Valid @RequestBody(required = true) final UserCreationRequest userCreationRequest) {
 		return userService.create(userCreationRequest);
+	}
+
+	@PostMapping(value = "/pre-register/login", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseStatus(HttpStatus.OK)
+	@Operation(summary = "Returns A JWT Representing The Logged In User If Successfull")
+	public ResponseEntity<?> userLoginHandler(
+			@Valid @RequestBody(required = true) final UserLoginRequest userLoginRequest) {
+		return userService.login(userLoginRequest);
 	}
 
 	@PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)

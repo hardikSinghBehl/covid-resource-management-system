@@ -8,6 +8,7 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import com.hardik.pomfrey.entity.User;
 import com.hardik.pomfrey.repository.RequestRepository;
 import com.hardik.pomfrey.repository.UserRepository;
 import com.hardik.pomfrey.request.UserCreationRequest;
+import com.hardik.pomfrey.request.UserLoginRequest;
 import com.hardik.pomfrey.request.UserPasswordUpdationRequest;
 import com.hardik.pomfrey.request.UserUpdationRequest;
 import com.hardik.pomfrey.utility.ResponseEntityUtils;
@@ -120,6 +122,14 @@ public class UserService {
 					.emailId(followerUser.getEmailId()).firstName(followerUser.getFirstName())
 					.lastName(followerUser.getLastName()).build();
 		}).collect(Collectors.toList()));
+	}
+
+	public ResponseEntity<?> login(final UserLoginRequest userLoginRequest) {
+		final var user = userRepository.findByEmailId(userLoginRequest.getEmailId()).get();
+		if (passwordEncoder.matches(userLoginRequest.getPassword(), user.getPassword())) {
+			return responseEntityUtils.generateSuccessLoginResponse(user);
+		}
+		throw new UsernameNotFoundException("Bad credentials");
 	}
 
 }
