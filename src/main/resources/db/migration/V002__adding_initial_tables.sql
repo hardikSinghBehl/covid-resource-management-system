@@ -150,6 +150,7 @@ CREATE TABLE comments (
   text CHARACTER VARYING (200) NOT NULL,
   item_type CHARACTER VARYING (20) NOT NULL,  
   item_id UUID NOT NULL,
+  is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
   updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
   CONSTRAINT comments_fkey_user FOREIGN KEY (user_id)

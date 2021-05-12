@@ -34,6 +34,7 @@ public class CommentService {
 		comment.setItemId(commentCreationRequest.getItemId());
 		comment.setText(commentCreationRequest.getText());
 		comment.setUserId(user.getId());
+		comment.setActive(true);
 
 		commentRepository.save(comment);
 
@@ -47,7 +48,8 @@ public class CommentService {
 		if (comment.getUserId() != user.getId())
 			return responseEntityUtils.generateUnauthorizedResponse();
 
-		commentRepository.deleteById(comment.getId());
+		comment.setActive(false);
+		commentRepository.save(comment);
 		return responseEntityUtils.generateCommentDeletionResponse();
 	}
 
@@ -56,7 +58,7 @@ public class CommentService {
 			final var user = comment.getUser();
 			return CommentDto.builder().createdAt(comment.getCreatedAt()).emailId(user.getEmailId())
 					.fullName(user.getFirstName() + " " + user.getLastName()).id(comment.getId())
-					.text(comment.getText()).build();
+					.text(comment.getText()).isActive(comment.getActive()).build();
 		}).sorted((a, b) -> a.getCreatedAt().compareTo(b.getCreatedAt())).collect(Collectors.toList()));
 	}
 

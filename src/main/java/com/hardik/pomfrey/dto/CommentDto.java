@@ -16,6 +16,7 @@ public class CommentDto {
 	private final String emailId;
 	private final String fullName;
 	private final String text;
+	private final Boolean isActive;
 	private final LocalDateTime createdAt;
 
 }

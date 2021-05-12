@@ -48,6 +48,9 @@ public class Comment implements Serializable {
 	@Column(name = "item_id", nullable = false)
 	private UUID itemId;
 
+	@Column(name = "is_active")
+	private Boolean Active;
+
 	@Column(name = "created_at", nullable = false, insertable = false, updatable = false)
 	private LocalDateTime createdAt;
 
