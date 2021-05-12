@@ -6,7 +6,7 @@ import lombok.experimental.UtilityClass;
 public class ItemType {
 
 	public final String REQUEST = "request";
-	public final String RESPONSE = "response";
+	public final String RESOURCE = "resource";
 	public final String COMMENT = "comment";
 
 }

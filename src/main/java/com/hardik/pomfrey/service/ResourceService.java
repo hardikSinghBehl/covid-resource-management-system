@@ -7,8 +7,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.hardik.pomfrey.constants.ItemType;
 import com.hardik.pomfrey.dto.ResourceDto;
 import com.hardik.pomfrey.entity.Resource;
+import com.hardik.pomfrey.repository.ReportMappingRepository;
 import com.hardik.pomfrey.repository.ResourceRepository;
 import com.hardik.pomfrey.repository.UserRepository;
 import com.hardik.pomfrey.request.ResourceCreationRequest;
@@ -27,6 +29,8 @@ public class ResourceService {
 	private final UserRepository userRepository;
 
 	private final ResponseEntityUtils responseEntityUtils;
+
+	private final ReportMappingRepository reportMappingRepository;
 
 	public ResponseEntity<?> create(final ResourceCreationRequest resourceCreationRequest, final String emailId) {
 		final var user = userRepository.findByEmailId(emailId).get();
@@ -103,6 +107,15 @@ public class ResourceService {
 									.resourceType(resource.getResourceType().getName()).title(resource.getTitle())
 									.build();
 						}).collect(Collectors.toList()));
+	}
+
+	public void handleReports() {
+		resourceRepository.findAll().parallelStream().filter(resource -> resource.getIsActive()).forEach(resource -> {
+			if (reportMappingRepository.findByItemTypeAndItemId(ItemType.RESOURCE, resource.getId()).size() >= 10) {
+				resource.setIsActive(false);
+				resourceRepository.save(resource);
+			}
+		});
 	}
 
 }
