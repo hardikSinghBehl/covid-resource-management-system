@@ -35,6 +35,7 @@ Authentication : Bearer <JWT>
 * Register a resource with the application (cretae/update-details/update-count/mark-inactive)
 * Users can comment on the following items (request, resource, comment)
 * Users can report the following items (request, resource, comment)
+* Itmems with >10 reports will be automatically removed (soft-delete) through cron job schedulers
 * Users can follow other users for notifications **(TODO-mail-notification)**
 * Users gain credibility points whenever they assist with a request fulfillment
 * List of Nearest Requests based on the users location is returned
@@ -58,7 +59,7 @@ FROM requests WHERE is_active = true ORDER BY distance DESC;
 ## TODO
 * Unit Tests using Junit/Mockito/MockMVC
 * Integration Tests Using TestContainers/TestRestTemplate
-* Scheduler For Removing Bulk Reported Items (Request/Resource/Comment)
+* ~~Scheduler For Removing Bulk Reported Items (Request/Resource/Comment)~~
 * Integrate Java-Mail-API/Freemarker for event notifications
 * Create POC using Postgis Geometry for storing location instead of latitude/longitude
 

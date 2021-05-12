@@ -7,9 +7,11 @@ import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.hardik.pomfrey.constants.ItemType;
 import com.hardik.pomfrey.dto.CommentDto;
 import com.hardik.pomfrey.entity.Comment;
 import com.hardik.pomfrey.repository.CommentRepository;
+import com.hardik.pomfrey.repository.ReportMappingRepository;
 import com.hardik.pomfrey.repository.UserRepository;
 import com.hardik.pomfrey.request.CommentCreationRequest;
 import com.hardik.pomfrey.utility.ResponseEntityUtils;
@@ -25,6 +27,8 @@ public class CommentService {
 	private final UserRepository userRepository;
 
 	private final ResponseEntityUtils responseEntityUtils;
+
+	private final ReportMappingRepository reportMappingRepository;
 
 	public ResponseEntity<?> create(final CommentCreationRequest commentCreationRequest, final String emailId) {
 		final var comment = new Comment();
@@ -60,6 +64,15 @@ public class CommentService {
 					.fullName(user.getFirstName() + " " + user.getLastName()).id(comment.getId())
 					.text(comment.getText()).isActive(comment.getActive()).build();
 		}).sorted((a, b) -> a.getCreatedAt().compareTo(b.getCreatedAt())).collect(Collectors.toList()));
+	}
+
+	public void handleReports() {
+		commentRepository.findAll().parallelStream().filter(comment -> comment.getActive()).forEach(comment -> {
+			if (reportMappingRepository.findByItemTypeAndItemId(ItemType.COMMENT, comment.getId()).size() >= 10) {
+				comment.setActive(false);
+				commentRepository.save(comment);
+			}
+		});
 	}
 
 }
