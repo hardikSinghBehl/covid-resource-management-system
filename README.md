@@ -35,7 +35,7 @@ Authentication : Bearer <JWT>
 * Register a resource with the application (cretae/update-details/update-count/mark-inactive)
 * Users can comment on the following items (request, resource, comment)
 * Users can report the following items (request, resource, comment)
-* Itmems with >10 reports will be automatically removed (soft-delete) through cron job schedulers
+* Items with >10 reports will be automatically removed (soft-delete) through cron job schedulers
 * Users can follow other users for notifications **(TODO-mail-notification)**
 * Users gain credibility points whenever they assist with a request fulfillment
 * List of Nearest Requests based on the users location is returned
@@ -54,6 +54,20 @@ SELECT id , latitude, longitude, SQRT(
     POW(69.1 * (latitude - [users-latitude]), 2) +
     POW(69.1 * ([users-longitude] - longitude) * COS(latitude / 57.3), 2)) AS distance
 FROM requests WHERE is_active = true ORDER BY distance DESC;
+```
+
+## Credibility
+
+* Users will be prompted to fill out the email-id of user that assisted/helped in the request fulfillment (iff it happened && iff it happened through the createt application)
+* Users will recieve credibility points when someone enters their name as the fulfiller user
+* The credibility points can be retreived with a simple JPA query
+* [LINK 1](https://github.com/hardikSinghBehl/covid-resource-management-system/blob/main/src/main/java/com/hardik/pomfrey/repository/RequestRepository.java)
+* [LINK 2](https://github.com/hardikSinghBehl/covid-resource-management-system/blob/main/src/main/java/com/hardik/pomfrey/request/RequestStateUpdationRequest.java)
+* [LINK 3](https://github.com/hardikSinghBehl/covid-resource-management-system/blob/a7cfa247c0fa2967081f429484db95852dbeb47a/src/main/java/com/hardik/pomfrey/service/UserService.java#L90)
+
+
+```
+SELECT COUNT(*) FROM requests WHERE fulfilled_by_user_id = ?1;
 ```
 
 ## TODO
