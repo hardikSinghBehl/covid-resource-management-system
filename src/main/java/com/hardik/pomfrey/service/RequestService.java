@@ -3,7 +3,6 @@ package com.hardik.pomfrey.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -100,17 +99,16 @@ public class RequestService {
 	public ResponseEntity<List<RequestDto>> reteive(String emailId) {
 		final var user = userRepository.findByEmailId(emailId).get();
 
-		return ResponseEntity.ok(
-				requestRepository.findNearestRequests(user.getLatitude(), user.getLongitude(), PageRequest.of(0, 50))
-						.parallelStream().map(request -> {
-							final var requestedByUser = request.getRequestedByUser();
-							return RequestDto.builder().description(request.getDescription())
-									.emailId(requestedByUser.getEmailId())
-									.fullName(requestedByUser.getFirstName() + " " + requestedByUser.getLastName())
-									.id(request.getId()).isActive(request.getIsActive()).latitude(request.getLatitude())
-									.longitude(request.getLongitude()).title(request.getTitle())
-									.resourceType(request.getResourceType().getName()).build();
-						}).collect(Collectors.toList()));
+		return ResponseEntity.ok(requestRepository.findNearestRequests(user.getLatitude(), user.getLongitude())
+				.parallelStream().map(request -> {
+					final var requestedByUser = request.getRequestedByUser();
+					return RequestDto.builder().description(request.getDescription())
+							.emailId(requestedByUser.getEmailId())
+							.fullName(requestedByUser.getFirstName() + " " + requestedByUser.getLastName())
+							.id(request.getId()).isActive(request.getIsActive()).latitude(request.getLatitude())
+							.longitude(request.getLongitude()).title(request.getTitle())
+							.resourceType(request.getResourceType().getName()).build();
+				}).limit(50).collect(Collectors.toList()));
 	}
 
 	public void handleReports() {
