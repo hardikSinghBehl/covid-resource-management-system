@@ -2,6 +2,10 @@
 
 ##### Submission project for Jagan Institute Of Management Studies, Rohini-5 (JIMS) resource sharing challenge under theme community help during covid-19
 
+<center>
+	<a target='_blank' href='https://pomfrey-covid-api-jims-hardik.herokuapp.com/pomfrey/swagger-ui.html'>CLICK HERE TO VIEW API DOCS (Deployed Swagger-UI)</a>
+</center>
+
 ## Tech Stack Used 
 * Java 15
 * Spring Boot
@@ -99,6 +103,12 @@ sudo docker-compose up -d
 
 Service port is 9090 and Postgres Port is 6432. They both can be changed in the [docker-compose.yml](docker-compose.yml) file
 
+To View Logs
+
+```
+docker-compose logs -f service
+```
+
 To stop the container run
 
 ```
@@ -112,11 +122,28 @@ Create postgres user (superuser) with name and password as pomfrey
 ```
 CREATE USER pomfrey WITH PASSWORD 'pomfrey' SUPERUSER;
 ```
+Create Database with name 'pomfrey' and assign the above created user to the database with preferable CLI or GUI tool
+
+```
+create database pomfrey;
+```
+
+```
+grant all privileges on database pomfrey to pomfrey;
+```
+
 Run mvn clean install in the core 
 
 ```
 mvn clean install
 ```
+
+Run Tests
+
+```
+mvn test
+```
+
 Run Application 
 
 ```
@@ -128,5 +155,13 @@ API Documentation can be viewed by visiting the below link (can be altered in ap
 ```
 http://localhost:9091/pomfrey/swagger-ui.html
 ```
+
+## Quick Guide To Use Swagger-UI
+
+* Click on API that you wish to hit by clicking the **Try It Out** button
+* Fill in the input if required as mentioned and click on **execute**
+* Some API's do not require the user to authenticate themselves before using it like account-registeration/account-login API's
+* In order to gain JWT required for authentication, execute the login API with valid credentials and paste the received JWT in repsonse in the Top Right section y clicking on **Authorize** and paste the JWT there to authorize
+* After successfully authorization, all protected API's can be executed the same way non-protected API's were being executed, the JWT will be **automatically** sent to the server inside headers following **bearerAuth** security flow. 
 
 
