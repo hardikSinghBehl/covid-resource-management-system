@@ -17,7 +17,6 @@ public class OpenApiConfigurationProperties {
 		private String apiVersion;
 
 		private Contact contact = new Contact();
-		private Header header = new Header();
 		private Security security = new Security();
 
 		@Data
@@ -25,12 +24,6 @@ public class OpenApiConfigurationProperties {
 			private String email;
 			private String name;
 			private String url;
-		}
-
-		@Data
-		public class Header {
-			private String name;
-			private String description;
 		}
 
 		@Data
