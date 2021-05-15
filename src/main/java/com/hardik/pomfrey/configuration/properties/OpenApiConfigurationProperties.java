@@ -18,6 +18,7 @@ public class OpenApiConfigurationProperties {
 
 		private Contact contact = new Contact();
 		private Header header = new Header();
+		private Security security = new Security();
 
 		@Data
 		public class Contact {
@@ -30,6 +31,13 @@ public class OpenApiConfigurationProperties {
 		public class Header {
 			private String name;
 			private String description;
+		}
+
+		@Data
+		public class Security {
+			private String name;
+			private String scheme;
+			private String bearerFormat;
 		}
 	}
 

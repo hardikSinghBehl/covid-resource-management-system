@@ -2,6 +2,7 @@ package com.hardik.pomfrey.utility;
 
 import java.time.LocalDateTime;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
@@ -13,12 +14,15 @@ import com.hardik.pomfrey.entity.User;
 import com.hardik.pomfrey.security.utility.JwtUtils;
 
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Component
 @AllArgsConstructor
+@NoArgsConstructor
 public class ResponseEntityUtils {
 
-	private final JwtUtils jwtUtils;
+	@Autowired
+	private JwtUtils jwtUtils;
 
 	public ResponseEntity<?> generateUserAccountCreationResponse() {
 		final var response = new JSONObject();
