@@ -14,6 +14,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
@@ -48,91 +50,109 @@ class CommentServiceTest {
 				reportMappingRepository);
 	}
 
-	@Test
-	void create_whenCorrectEmailIdIsProvided_commentCreatedInDatabase() {
-		final var commentCreationRequest = mock(CommentCreationRequest.class);
-		final var user = mock(User.class);
-		final var userId = UUID.randomUUID();
-		final var requestId = UUID.randomUUID();
+	@Nested
+	@DisplayName("Comment Creation Service Is Called")
+	class CommentCreationTest {
 
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
-		when(user.getId()).thenReturn(userId);
-		when(commentCreationRequest.getText()).thenReturn(COMMENT_TEXT);
-		when(commentCreationRequest.getItemId()).thenReturn(requestId);
-		when(commentCreationRequest.getItemType()).thenReturn(ItemType.REQUEST);
-		when(commentRepository.save(Mockito.any())).thenReturn(new Comment());
+		@Test
+		@DisplayName("Giving Correct Email-Id And Request Body")
+		void create_whenCorrectEmailIdIsProvided_commentCreatedInDatabase() {
+			final var commentCreationRequest = mock(CommentCreationRequest.class);
+			final var user = mock(User.class);
+			final var userId = UUID.randomUUID();
+			final var requestId = UUID.randomUUID();
 
-		final var response = commentService.create(commentCreationRequest, EMAIL_ID);
+			when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
+			when(user.getId()).thenReturn(userId);
+			when(commentCreationRequest.getText()).thenReturn(COMMENT_TEXT);
+			when(commentCreationRequest.getItemId()).thenReturn(requestId);
+			when(commentCreationRequest.getItemType()).thenReturn(ItemType.REQUEST);
+			when(commentRepository.save(Mockito.any())).thenReturn(new Comment());
 
-		assertNotNull(response.getBody());
-		assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
-		verify(commentCreationRequest).getText();
-		verify(commentCreationRequest).getItemId();
-		verify(commentCreationRequest).getItemType();
-		verify(commentRepository).save(Mockito.any(Comment.class));
+			final var response = commentService.create(commentCreationRequest, EMAIL_ID);
+
+			assertNotNull(response.getBody());
+			assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+			verify(commentCreationRequest).getText();
+			verify(commentCreationRequest).getItemId();
+			verify(commentCreationRequest).getItemType();
+			verify(commentRepository).save(Mockito.any(Comment.class));
+		}
+
+		@Test
+		@DisplayName("Giving Incorrect Email-id")
+		void create_whenWrongEmailIdIsProvided_throwsError() {
+			when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.empty());
+
+			assertThrows(NoSuchElementException.class,
+					() -> commentService.create(mock(CommentCreationRequest.class), EMAIL_ID));
+		}
+
 	}
 
-	@Test
-	void create_whenWrongEmailIdIsProvided_throwsError() {
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.empty());
+	@Nested
+	@DisplayName("Comment Deletion Service Is Called")
+	class CommentDeletionTest {
 
-		assertThrows(NoSuchElementException.class, () -> commentService.create(null, EMAIL_ID));
-	}
+		@Test
+		@DisplayName("Giving Invalid Comment-id")
+		void delete_whenWrongCommentIdIsProvided_throwsError() {
+			final var wrongCommentId = UUID.randomUUID();
+			when(commentRepository.findById(wrongCommentId)).thenReturn(Optional.empty());
 
-	@Test
-	void delete_whenWrongCommentIdIsProvided_throwsError() {
-		final var wrongCommentId = UUID.randomUUID();
-		when(commentRepository.findById(wrongCommentId)).thenReturn(Optional.empty());
+			assertThrows(NoSuchElementException.class, () -> commentService.delete(wrongCommentId, EMAIL_ID));
+			verify(commentRepository, times(1)).findById(wrongCommentId);
+			verify(userRepository, times(0)).findByEmailId(Mockito.anyString());
+		}
 
-		assertThrows(NoSuchElementException.class, () -> commentService.delete(wrongCommentId, EMAIL_ID));
-		verify(commentRepository, times(1)).findById(wrongCommentId);
-		verify(userRepository, times(0)).findByEmailId(Mockito.anyString());
-	}
+		@Test
+		@DisplayName("Giving Invalid Email-id")
+		void delete_whenWrongEmailIdIsProvided_throwsError() {
+			final var commentId = UUID.randomUUID();
+			when(commentRepository.findById(commentId)).thenReturn(Optional.of(new Comment()));
+			when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.empty());
 
-	@Test
-	void delete_whenWrongEmailIdIsProvided_throwsError() {
-		final var commentId = UUID.randomUUID();
-		when(commentRepository.findById(commentId)).thenReturn(Optional.of(new Comment()));
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.empty());
+			assertThrows(NoSuchElementException.class, () -> commentService.delete(commentId, EMAIL_ID));
+			verify(commentRepository, times(1)).findById(commentId);
+			verify(userRepository, times(1)).findByEmailId(Mockito.anyString());
+		}
 
-		assertThrows(NoSuchElementException.class, () -> commentService.delete(commentId, EMAIL_ID));
-		verify(commentRepository, times(1)).findById(commentId);
-		verify(userRepository, times(1)).findByEmailId(Mockito.anyString());
-	}
+		@Test
+		@DisplayName("Giving Correct Input")
+		void delete_whenCorrectInputsAreProvided_setCommentAsInactiveInDatabase() {
+			final var commentId = UUID.randomUUID();
+			final var userId = UUID.randomUUID();
+			final var user = mock(User.class);
+			final var comment = mock(Comment.class);
 
-	@Test
-	void delete_whenCorrectInputsAreProvided_setCommentAsInactiveInDatabase() {
-		final var commentId = UUID.randomUUID();
-		final var userId = UUID.randomUUID();
-		final var user = mock(User.class);
-		final var comment = mock(Comment.class);
+			when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+			when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
+			when(user.getId()).thenReturn(userId);
+			when(comment.getUserId()).thenReturn(userId);
+			when(commentRepository.save(comment)).thenReturn(comment);
 
-		when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
-		when(user.getId()).thenReturn(userId);
-		when(comment.getUserId()).thenReturn(userId);
-		when(commentRepository.save(comment)).thenReturn(comment);
+			commentService.delete(commentId, EMAIL_ID);
 
-		commentService.delete(commentId, EMAIL_ID);
+			verify(comment).setActive(false);
+		}
 
-		verify(comment).setActive(false);
-	}
+		@Test
+		@DisplayName("When Other User's Credentials Are Given")
+		void delete_whenUserOtherThanCommentWriterTriesToDelete_errorMessageShow() {
+			final var commentId = UUID.randomUUID();
+			final var userId = UUID.randomUUID();
+			final var user = mock(User.class);
+			final var comment = mock(Comment.class);
+			when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+			when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
+			when(user.getId()).thenReturn(userId);
+			when(comment.getUserId()).thenReturn(UUID.randomUUID());
 
-	@Test
-	void delete_whenUserOtherThanCommentWriterTriesToDelete_errorMessageShow() {
-		final var commentId = UUID.randomUUID();
-		final var userId = UUID.randomUUID();
-		final var user = mock(User.class);
-		final var comment = mock(Comment.class);
-		when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
-		when(user.getId()).thenReturn(userId);
-		when(comment.getUserId()).thenReturn(UUID.randomUUID());
+			final var response = commentService.delete(commentId, EMAIL_ID);
 
-		final var response = commentService.delete(commentId, EMAIL_ID);
-
-		assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCodeValue());
-		verify(comment, times(0)).setActive(false);
+			assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCodeValue());
+			verify(comment, times(0)).setActive(false);
+		}
 	}
 
 }

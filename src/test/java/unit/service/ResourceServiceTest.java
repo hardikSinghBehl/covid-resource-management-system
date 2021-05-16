@@ -15,6 +15,8 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
@@ -53,145 +55,177 @@ class ResourceServiceTest {
 				reportMappingRepository);
 	}
 
-	@Test
-	void create_whenCorrectInputsAreProvided_createAvailableResourceInDatabase() {
-		final var resourceCreationRequest = mock(ResourceCreationRequest.class);
-		final var user = mock(User.class);
+	@Nested
+	@DisplayName("Resource Creation Service Is Called")
+	class ResourceCreationServiceTest {
 
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
-		when(resourceCreationRequest.getCount()).thenReturn(1);
-		when(resourceCreationRequest.getDescription()).thenReturn(RESOURCE_DESCRIPTION);
-		when(resourceCreationRequest.getTitle()).thenReturn(RESOURCE_TITLE);
-		when(resourceCreationRequest.getResourceTypeId()).thenReturn(1);
-		when(resourceCreationRequest.getLatitude()).thenReturn(LATITUDE);
-		when(resourceCreationRequest.getLongitude()).thenReturn(LONGITUDE);
-		when(resourceRepository.save(Mockito.any(Resource.class))).thenReturn(new Resource());
+		@Test
+		@DisplayName("Giving Correct Email-id and Request Inputs")
+		void create_whenCorrectInputsAreProvided_createAvailableResourceInDatabase() {
+			final var resourceCreationRequest = mock(ResourceCreationRequest.class);
+			final var user = mock(User.class);
 
-		final var response = resourceService.create(resourceCreationRequest, EMAIL_ID);
+			when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
+			when(resourceCreationRequest.getCount()).thenReturn(1);
+			when(resourceCreationRequest.getDescription()).thenReturn(RESOURCE_DESCRIPTION);
+			when(resourceCreationRequest.getTitle()).thenReturn(RESOURCE_TITLE);
+			when(resourceCreationRequest.getResourceTypeId()).thenReturn(1);
+			when(resourceCreationRequest.getLatitude()).thenReturn(LATITUDE);
+			when(resourceCreationRequest.getLongitude()).thenReturn(LONGITUDE);
+			when(resourceRepository.save(Mockito.any(Resource.class))).thenReturn(new Resource());
 
-		assertNotNull(response.getBody());
-		assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
-		verify(resourceCreationRequest).getDescription();
-		verify(resourceCreationRequest).getTitle();
-		verify(resourceCreationRequest).getLatitude();
-		verify(resourceCreationRequest).getLongitude();
-		verify(resourceCreationRequest).getCount();
-		verify(resourceCreationRequest).getResourceTypeId();
-		verify(resourceRepository).save(Mockito.any(Resource.class));
+			final var response = resourceService.create(resourceCreationRequest, EMAIL_ID);
+
+			assertNotNull(response.getBody());
+			assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+			verify(resourceCreationRequest).getDescription();
+			verify(resourceCreationRequest).getTitle();
+			verify(resourceCreationRequest).getLatitude();
+			verify(resourceCreationRequest).getLongitude();
+			verify(resourceCreationRequest).getCount();
+			verify(resourceCreationRequest).getResourceTypeId();
+			verify(resourceRepository).save(Mockito.any(Resource.class));
+		}
+
+		@Test
+		@DisplayName("Giving Wrong Email-id")
+		void create_whenWrongEmailIdIsProvided_throwException() {
+			when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.empty());
+
+			assertThrows(NoSuchElementException.class,
+					() -> resourceService.create(mock(ResourceCreationRequest.class), RandomStringUtils.random(10)));
+		}
+
 	}
 
-	@Test
-	void create_whenWrongEmailIdIsProvided_throwException() {
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.empty());
+	@Nested
+	@DisplayName("Resource Updation Service Is Called")
+	class ResourceUpdationServiceTest {
 
-		assertThrows(NoSuchElementException.class,
-				() -> resourceService.create(mock(ResourceCreationRequest.class), RandomStringUtils.random(10)));
-	}
+		@Nested
+		@DisplayName("Resource Details Updation")
+		class ResourceDetailsUpdationServiceTest {
 
-	@Test
-	void update_details_whenCorrectInputIsProvided_updateDetailsOfResourceInDatabase() {
-		final var user = mock(User.class);
-		final var resource = mock(Resource.class);
-		final var userId = UUID.randomUUID();
-		final var resourceId = UUID.randomUUID();
-		final var resourceDetailUpdationRequest = mock(ResourceDetailUpdationRequest.class);
+			@Test
+			@DisplayName("Giving Valid Email-id And Request Input")
+			void update_details_whenCorrectInputIsProvided_updateDetailsOfResourceInDatabase() {
+				final var user = mock(User.class);
+				final var resource = mock(Resource.class);
+				final var userId = UUID.randomUUID();
+				final var resourceId = UUID.randomUUID();
+				final var resourceDetailUpdationRequest = mock(ResourceDetailUpdationRequest.class);
 
-		when(resourceDetailUpdationRequest.getId()).thenReturn(resourceId);
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
-		when(resourceRepository.findById(resourceId)).thenReturn(Optional.of(resource));
-		when(resource.getUserId()).thenReturn(userId);
-		when(user.getId()).thenReturn(userId);
-		when(resourceDetailUpdationRequest.getCount()).thenReturn(2);
-		when(resourceDetailUpdationRequest.getDescription()).thenReturn(RESOURCE_DESCRIPTION);
-		when(resourceDetailUpdationRequest.getLatitude()).thenReturn(LATITUDE);
-		when(resourceDetailUpdationRequest.getLongitude()).thenReturn(LONGITUDE);
+				when(resourceDetailUpdationRequest.getId()).thenReturn(resourceId);
+				when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
+				when(resourceRepository.findById(resourceId)).thenReturn(Optional.of(resource));
+				when(resource.getUserId()).thenReturn(userId);
+				when(user.getId()).thenReturn(userId);
+				when(resourceDetailUpdationRequest.getCount()).thenReturn(2);
+				when(resourceDetailUpdationRequest.getDescription()).thenReturn(RESOURCE_DESCRIPTION);
+				when(resourceDetailUpdationRequest.getLatitude()).thenReturn(LATITUDE);
+				when(resourceDetailUpdationRequest.getLongitude()).thenReturn(LONGITUDE);
 
-		final var response = resourceService.update(resourceDetailUpdationRequest, EMAIL_ID);
+				final var response = resourceService.update(resourceDetailUpdationRequest, EMAIL_ID);
 
-		assertNotNull(response.getBody());
-		assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
-		verify(resourceDetailUpdationRequest).getDescription();
-		verify(resourceDetailUpdationRequest).getCount();
-		verify(resourceDetailUpdationRequest).getLatitude();
-		verify(resourceDetailUpdationRequest).getLongitude();
-		verify(resourceRepository).save(resource);
-	}
+				assertNotNull(response.getBody());
+				assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+				verify(resourceDetailUpdationRequest).getDescription();
+				verify(resourceDetailUpdationRequest).getCount();
+				verify(resourceDetailUpdationRequest).getLatitude();
+				verify(resourceDetailUpdationRequest).getLongitude();
+				verify(resourceRepository).save(resource);
+			}
 
-	@Test
-	void update_details_whenWrongEmailIdIsProvided_throwException() {
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.empty());
+			@Test
+			@DisplayName("Giving Wrong Email-id")
+			void update_details_whenWrongEmailIdIsProvided_throwException() {
+				when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.empty());
 
-		assertThrows(NoSuchElementException.class,
-				() -> resourceService.update(mock(ResourceDetailUpdationRequest.class), RandomStringUtils.random(10)));
-	}
+				assertThrows(NoSuchElementException.class, () -> resourceService
+						.update(mock(ResourceDetailUpdationRequest.class), RandomStringUtils.random(10)));
+			}
 
-	@Test
-	void update_details_whenUserOtherThanResourceSubmitterTriesToUpdateIt_throwsException() {
-		final var user = mock(User.class);
-		final var resource = mock(Resource.class);
-		final var resourceId = UUID.randomUUID();
-		final var resourceDetailsUpdationRequest = mock(ResourceDetailUpdationRequest.class);
+			@Test
+			@DisplayName("Giving User's Email-id Who Have Not Created The Resource")
+			void update_details_whenUserOtherThanResourceSubmitterTriesToUpdateIt_throwsException() {
+				final var user = mock(User.class);
+				final var resource = mock(Resource.class);
+				final var resourceId = UUID.randomUUID();
+				final var resourceDetailsUpdationRequest = mock(ResourceDetailUpdationRequest.class);
 
-		when(resourceDetailsUpdationRequest.getId()).thenReturn(resourceId);
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
-		when(resourceRepository.findById(resourceId)).thenReturn(Optional.of(resource));
-		when(user.getId()).thenReturn(UUID.randomUUID());
-		when(resource.getUserId()).thenReturn(UUID.randomUUID());
+				when(resourceDetailsUpdationRequest.getId()).thenReturn(resourceId);
+				when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
+				when(resourceRepository.findById(resourceId)).thenReturn(Optional.of(resource));
+				when(user.getId()).thenReturn(UUID.randomUUID());
+				when(resource.getUserId()).thenReturn(UUID.randomUUID());
 
-		final var response = resourceService.update(resourceDetailsUpdationRequest, EMAIL_ID);
+				final var response = resourceService.update(resourceDetailsUpdationRequest, EMAIL_ID);
 
-		assertNotNull(response.getBody());
-		assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCodeValue());
-		verify(resourceRepository, times(0)).save(resource);
-	}
+				assertNotNull(response.getBody());
+				assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCodeValue());
+				verify(resourceRepository, times(0)).save(resource);
+			}
 
-	@Test
-	void update_state_whenCorrectInputIsProvided_updateDetailsOfResourceInDatabase() {
-		final var user = mock(User.class);
-		final var resource = mock(Resource.class);
-		final var userId = UUID.randomUUID();
-		final var resourceId = UUID.randomUUID();
-		final var resourceStateUpdationRequest = mock(ResourceStateUpdationRequest.class);
+		}
 
-		when(resourceStateUpdationRequest.getId()).thenReturn(resourceId);
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
-		when(resourceRepository.findById(resourceId)).thenReturn(Optional.of(resource));
-		when(resource.getUserId()).thenReturn(userId);
-		when(user.getId()).thenReturn(userId);
+		@Nested
+		@DisplayName("Resource State Updation")
+		class ResourceStateUpdationServiceTest {
 
-		final var response = resourceService.update(resourceStateUpdationRequest, EMAIL_ID);
+			@Test
+			@DisplayName("Giving Correct Email-id And Request Input")
+			void update_state_whenCorrectInputIsProvided_updateDetailsOfResourceInDatabase() {
+				final var user = mock(User.class);
+				final var resource = mock(Resource.class);
+				final var userId = UUID.randomUUID();
+				final var resourceId = UUID.randomUUID();
+				final var resourceStateUpdationRequest = mock(ResourceStateUpdationRequest.class);
 
-		assertNotNull(response.getBody());
-		assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
-		verify(resource).setIsActive(false);
-		verify(resourceRepository).save(resource);
-	}
+				when(resourceStateUpdationRequest.getId()).thenReturn(resourceId);
+				when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
+				when(resourceRepository.findById(resourceId)).thenReturn(Optional.of(resource));
+				when(resource.getUserId()).thenReturn(userId);
+				when(user.getId()).thenReturn(userId);
 
-	@Test
-	void update_state_whenWrongEmailIdIsProvided_throwException() {
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.empty());
+				final var response = resourceService.update(resourceStateUpdationRequest, EMAIL_ID);
 
-		assertThrows(NoSuchElementException.class,
-				() -> resourceService.update(mock(ResourceStateUpdationRequest.class), RandomStringUtils.random(10)));
-	}
+				assertNotNull(response.getBody());
+				assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+				verify(resource).setIsActive(false);
+				verify(resourceRepository).save(resource);
+			}
 
-	@Test
-	void update_state_whenUserOtherThanResourceSubmitterTriesToUpdateIt_throwsException() {
-		final var user = mock(User.class);
-		final var resource = mock(Resource.class);
-		final var resourceId = UUID.randomUUID();
-		final var resourceStateUpdationRequest = mock(ResourceStateUpdationRequest.class);
+			@Test
+			@DisplayName("Giving Wrong Email-id")
+			void update_state_whenWrongEmailIdIsProvided_throwException() {
+				when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.empty());
 
-		when(resourceStateUpdationRequest.getId()).thenReturn(resourceId);
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
-		when(resourceRepository.findById(resourceId)).thenReturn(Optional.of(resource));
-		when(user.getId()).thenReturn(UUID.randomUUID());
-		when(resource.getUserId()).thenReturn(UUID.randomUUID());
+				assertThrows(NoSuchElementException.class, () -> resourceService
+						.update(mock(ResourceStateUpdationRequest.class), RandomStringUtils.random(10)));
+			}
 
-		final var response = resourceService.update(resourceStateUpdationRequest, EMAIL_ID);
+			@Test
+			@DisplayName("Giving User's Email-id Who Have Not Created The Resource")
+			void update_state_whenUserOtherThanResourceSubmitterTriesToUpdateIt_throwsException() {
+				final var user = mock(User.class);
+				final var resource = mock(Resource.class);
+				final var resourceId = UUID.randomUUID();
+				final var resourceStateUpdationRequest = mock(ResourceStateUpdationRequest.class);
 
-		assertNotNull(response.getBody());
-		assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCodeValue());
-		verify(resourceRepository, times(0)).save(resource);
+				when(resourceStateUpdationRequest.getId()).thenReturn(resourceId);
+				when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
+				when(resourceRepository.findById(resourceId)).thenReturn(Optional.of(resource));
+				when(user.getId()).thenReturn(UUID.randomUUID());
+				when(resource.getUserId()).thenReturn(UUID.randomUUID());
+
+				final var response = resourceService.update(resourceStateUpdationRequest, EMAIL_ID);
+
+				assertNotNull(response.getBody());
+				assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCodeValue());
+				verify(resourceRepository, times(0)).save(resource);
+			}
+
+		}
+
 	}
 }

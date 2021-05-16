@@ -19,6 +19,8 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
@@ -74,6 +76,7 @@ public class UserServiceTest {
 	}
 
 	@Test
+	@DisplayName("User Creation Service Is Called With Valid Inputs")
 	void create_whenCorrectInputIsProvided_userCreatedInDb() {
 		final var userCreationRequest = mock(UserCreationRequest.class);
 		when(userCreationRequest.getContactNumber()).thenReturn(CONTACT_NUMBER);
@@ -102,182 +105,240 @@ public class UserServiceTest {
 		verify(responseEntityUtils).generateUserAccountCreationResponse();
 	}
 
-	@Test
-	void update_whenCorrectInputIsGiven_userDetailsAreUpdated() {
-		final var userUpdationRequest = mock(UserUpdationRequest.class);
-		final var user = mock(User.class);
-		when(userUpdationRequest.getContactNumber()).thenReturn(CONTACT_NUMBER);
-		when(userUpdationRequest.getFirstName()).thenReturn(FIRST_NAME);
-		when(userUpdationRequest.getLastName()).thenReturn(LAST_NAME);
-		when(userUpdationRequest.getStateId()).thenReturn(1);
-		when(userUpdationRequest.getLongitude()).thenReturn(LONGITUDE);
-		when(userUpdationRequest.getLatitude()).thenReturn(LATITUDE);
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
-		when(responseEntityUtils.generateUserAccountDetailUpdationResponse()).thenReturn(ResponseEntity.ok(null));
+	@Nested
+	@DisplayName("User Updation Service Is Called")
+	class UserUpdationTest {
 
-		userService.update(userUpdationRequest, EMAIL_ID);
+		@Nested
+		@DisplayName("Details Updation Service")
+		class UserDetailsUpdationRequest {
 
-		verify(userRepository).findByEmailId(EMAIL_ID);
-		verify(userRepository).save(user);
-		verify(user).setContactNumber(userUpdationRequest.getContactNumber());
-		verify(user).setFirstName(userUpdationRequest.getFirstName());
-		verify(user).setLastName(userUpdationRequest.getLastName());
-		verify(user).setStateId(userUpdationRequest.getStateId());
-		verify(user).setLatitude(userUpdationRequest.getLatitude());
-		verify(user).setLongitude(userUpdationRequest.getLongitude());
-		verify(responseEntityUtils).generateUserAccountDetailUpdationResponse();
+			@Test
+			@DisplayName("Giving Valid Request Inputs and Email-id")
+			void update_whenCorrectInputIsGiven_userDetailsAreUpdated() {
+				final var userUpdationRequest = mock(UserUpdationRequest.class);
+				final var user = mock(User.class);
+				when(userUpdationRequest.getContactNumber()).thenReturn(CONTACT_NUMBER);
+				when(userUpdationRequest.getFirstName()).thenReturn(FIRST_NAME);
+				when(userUpdationRequest.getLastName()).thenReturn(LAST_NAME);
+				when(userUpdationRequest.getStateId()).thenReturn(1);
+				when(userUpdationRequest.getLongitude()).thenReturn(LONGITUDE);
+				when(userUpdationRequest.getLatitude()).thenReturn(LATITUDE);
+				when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
+				when(responseEntityUtils.generateUserAccountDetailUpdationResponse())
+						.thenReturn(ResponseEntity.ok(null));
+
+				userService.update(userUpdationRequest, EMAIL_ID);
+
+				verify(userRepository).findByEmailId(EMAIL_ID);
+				verify(userRepository).save(user);
+				verify(user).setContactNumber(userUpdationRequest.getContactNumber());
+				verify(user).setFirstName(userUpdationRequest.getFirstName());
+				verify(user).setLastName(userUpdationRequest.getLastName());
+				verify(user).setStateId(userUpdationRequest.getStateId());
+				verify(user).setLatitude(userUpdationRequest.getLatitude());
+				verify(user).setLongitude(userUpdationRequest.getLongitude());
+				verify(responseEntityUtils).generateUserAccountDetailUpdationResponse();
+			}
+
+			@Test
+			@DisplayName("Giving Wrong Email-id")
+			void update_whenWrongEmailIdIsGiven_userDetailsAreUpdated() {
+				when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.empty());
+
+				assertThrows(NoSuchElementException.class,
+						() -> userService.update(mock(UserUpdationRequest.class), EMAIL_ID));
+
+			}
+
+		}
+
+		@Nested
+		@DisplayName("Password Updation Service")
+		class UserPasswordUpdationRequestTest {
+
+			@Test
+			@DisplayName("Giving Correct Old-Password")
+			void update_whenCorrectOldPasswordIsGiven_passwordIsUpdatedWithNewPassword() {
+				final var userPasswordUpdationRequest = mock(UserPasswordUpdationRequest.class);
+				final var user = mock(User.class);
+				when(user.getPassword()).thenReturn(PASSWORD);
+				when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
+				when(userPasswordUpdationRequest.getOldPassword()).thenReturn(PASSWORD);
+				when(userPasswordUpdationRequest.getNewPassword()).thenReturn(RandomStringUtils.random(5));
+				when(passwordEncoder.matches(userPasswordUpdationRequest.getOldPassword(), user.getPassword()))
+						.thenReturn(true);
+				when(passwordEncoder.encode(userPasswordUpdationRequest.getNewPassword())).thenReturn("ENCODED");
+				when(userRepository.save(user)).thenReturn(user);
+				when(responseEntityUtils.generateUserPasswordUpdationResponse()).thenReturn(ResponseEntity.ok(null));
+
+				userService.update(userPasswordUpdationRequest, EMAIL_ID);
+
+				verify(responseEntityUtils, times(0)).generateWrongOldPasswordResponse();
+				verify(responseEntityUtils).generateUserPasswordUpdationResponse();
+				verify(user).setPassword("ENCODED");
+				verify(userRepository).save(user);
+			}
+
+			@Test
+			@DisplayName("Giving Incorrect Old-Password")
+			void update_whenWrongOldPasswordIsGiven_exceptionIsThrown() {
+				final var userPasswordUpdationRequest = mock(UserPasswordUpdationRequest.class);
+				final var user = mock(User.class);
+				when(user.getPassword()).thenReturn(PASSWORD);
+				when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
+				when(userPasswordUpdationRequest.getOldPassword()).thenReturn(RandomStringUtils.random(5));
+				when(userPasswordUpdationRequest.getNewPassword()).thenReturn(RandomStringUtils.random(5));
+				when(passwordEncoder.matches(userPasswordUpdationRequest.getOldPassword(), user.getPassword()))
+						.thenReturn(false);
+				when(passwordEncoder.encode(userPasswordUpdationRequest.getNewPassword())).thenReturn("ENCODED");
+				when(userRepository.save(user)).thenReturn(user);
+
+				final var response = userService.update(userPasswordUpdationRequest, EMAIL_ID);
+
+				verify(responseEntityUtils).generateWrongOldPasswordResponse();
+				verify(responseEntityUtils, times(0)).generateUserPasswordUpdationResponse();
+				verify(user, times(0)).setPassword(Mockito.anyString());
+				verify(userRepository, times(0)).save(user);
+				assertEquals(HttpStatus.EXPECTATION_FAILED.value(), response.getStatusCodeValue());
+			}
+
+		}
+
 	}
 
-	@Test
-	void update_whenCorrectOldPasswordIsGiven_passwordIsUpdatedWithNewPassword() {
-		final var userPasswordUpdationRequest = mock(UserPasswordUpdationRequest.class);
-		final var user = mock(User.class);
-		when(user.getPassword()).thenReturn(PASSWORD);
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
-		when(userPasswordUpdationRequest.getOldPassword()).thenReturn(PASSWORD);
-		when(userPasswordUpdationRequest.getNewPassword()).thenReturn(RandomStringUtils.random(5));
-		when(passwordEncoder.matches(userPasswordUpdationRequest.getOldPassword(), user.getPassword()))
-				.thenReturn(true);
-		when(passwordEncoder.encode(userPasswordUpdationRequest.getNewPassword())).thenReturn("ENCODED");
-		when(userRepository.save(user)).thenReturn(user);
-		when(responseEntityUtils.generateUserPasswordUpdationResponse()).thenReturn(ResponseEntity.ok(null));
+	@Nested
+	@DisplayName("User Details Retreival Service Is Called")
+	class UserDetailsRetreivalTest {
 
-		userService.update(userPasswordUpdationRequest, EMAIL_ID);
+		@Nested
+		@DisplayName("User Profile Details Retreival")
+		class UserProfileDetailsReteivalServiceTest {
 
-		verify(responseEntityUtils, times(0)).generateWrongOldPasswordResponse();
-		verify(responseEntityUtils).generateUserPasswordUpdationResponse();
-		verify(user).setPassword("ENCODED");
-		verify(userRepository).save(user);
+			@Test
+			@DisplayName("Giving Valid Email-id")
+			void retreive_whenValidEmailIdIsProvided_returnUserDetailDto() {
+				final var user = mock(User.class);
+				when(user.getContactNumber()).thenReturn(CONTACT_NUMBER);
+				when(user.getEmailId()).thenReturn(EMAIL_ID);
+				when(user.getFirstName()).thenReturn(FIRST_NAME);
+				when(user.getLastName()).thenReturn(LAST_NAME);
+				when(user.getLatitude()).thenReturn(LATITUDE);
+				when(user.getLongitude()).thenReturn(LONGITUDE);
+				when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
+
+				final var response = userService.retrieve(EMAIL_ID);
+				final var userDetailDtoRecieved = response.getBody();
+
+				assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+				assertThat(response.getBody()).isInstanceOf(UserDetailDto.class);
+				assertEquals(EMAIL_ID, userDetailDtoRecieved.getEmailId());
+				assertEquals(FIRST_NAME, userDetailDtoRecieved.getFirstName());
+				assertEquals(LAST_NAME, userDetailDtoRecieved.getLastName());
+				assertEquals(CONTACT_NUMBER, userDetailDtoRecieved.getContactNumber());
+				assertEquals(LATITUDE, userDetailDtoRecieved.getLatitude());
+				assertEquals(LONGITUDE, userDetailDtoRecieved.getLongitude());
+			}
+
+			@Test
+			@DisplayName("Giving Invalid Email-id")
+			void retreive_whenWrongEmailIdIsProvided_throwError() {
+				when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.empty());
+
+				assertThrows(NoSuchElementException.class, () -> userService.retrieve(EMAIL_ID));
+			}
+
+		}
+
+		@Test
+		@DisplayName("User Credibility Retreival")
+		void retreiveCredibility_whenCorrectEmailIdIsProvided_returnsUsersCredibilityPointsRepresentingRequestsFulfilled() {
+			final var user = mock(User.class);
+			final var userId = UUID.randomUUID();
+			when(user.getId()).thenReturn(userId);
+			when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
+			when(requestRepository.findByFulfilledByUserId(userId)).thenReturn(List.of(new Request(), new Request()));
+
+			final var response = userService.retreiveCredibility(EMAIL_ID);
+
+			assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+			assertTrue(response.getBody().toString().contains("\"credibility\":2"));
+		}
+
+		@Test
+		@DisplayName("User Followers Retreival")
+		void rereiveFollowers_whenCorrectEmailIdProvided_returnsListOfUsersFollowingLoggedInUser() {
+			final var user = mock(User.class);
+			when(user.getFollowers()).thenReturn(Set.of());
+			when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
+
+			final var response = userService.rereiveFollowers(EMAIL_ID);
+
+			assertNotNull(response.getBody());
+			assertEquals(0, response.getBody().size());
+		}
+
+		@Test
+		@DisplayName("User Following Retreival")
+		void rereiveFollowing_whenCorrectEmailIdProvided_returnsListOfUsersLoggedInUserIsFollowing() {
+			final var user = mock(User.class);
+			when(user.getFollowing()).thenReturn(Set.of());
+			when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
+
+			final var response = userService.rereiveFollowing(EMAIL_ID);
+
+			assertNotNull(response.getBody());
+			assertEquals(0, response.getBody().size());
+		}
+
 	}
 
-	@Test
-	void update_whenWrongOldPasswordIsGiven_exceptionIsThrown() {
-		final var userPasswordUpdationRequest = mock(UserPasswordUpdationRequest.class);
-		final var user = mock(User.class);
-		when(user.getPassword()).thenReturn(PASSWORD);
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
-		when(userPasswordUpdationRequest.getOldPassword()).thenReturn(RandomStringUtils.random(5));
-		when(userPasswordUpdationRequest.getNewPassword()).thenReturn(RandomStringUtils.random(5));
-		when(passwordEncoder.matches(userPasswordUpdationRequest.getOldPassword(), user.getPassword()))
-				.thenReturn(false);
-		when(passwordEncoder.encode(userPasswordUpdationRequest.getNewPassword())).thenReturn("ENCODED");
-		when(userRepository.save(user)).thenReturn(user);
+	@Nested
+	@DisplayName("User Login Service Is Called")
+	class UserLoginServiceTest {
 
-		final var response = userService.update(userPasswordUpdationRequest, EMAIL_ID);
+		@Test
+		@DisplayName("Giving Valid Credentials")
+		void login_whenCorrectCredentialsAreProvided_jwtIsReturned() {
+			final var userLoginRequest = mock(UserLoginRequest.class);
+			final var user = mock(User.class);
+			when(user.getPassword()).thenReturn(PASSWORD);
+			when(userLoginRequest.getEmailId()).thenReturn(EMAIL_ID);
+			when(userLoginRequest.getPassword()).thenReturn(PASSWORD);
+			when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
+			when(passwordEncoder.matches(userLoginRequest.getPassword(), user.getPassword())).thenReturn(true);
+			Mockito.doReturn(ResponseEntity.ok(null)).when(responseEntityUtils).generateSuccessLoginResponse(user);
 
-		verify(responseEntityUtils).generateWrongOldPasswordResponse();
-		verify(responseEntityUtils, times(0)).generateUserPasswordUpdationResponse();
-		verify(user, times(0)).setPassword(Mockito.anyString());
-		verify(userRepository, times(0)).save(user);
-		assertEquals(HttpStatus.EXPECTATION_FAILED.value(), response.getStatusCodeValue());
-	}
+			final var response = userService.login(userLoginRequest);
 
-	@Test
-	void retreive_whenValidEmailIdIsProvided_returnUserDetailDto() {
-		final var user = mock(User.class);
-		when(user.getContactNumber()).thenReturn(CONTACT_NUMBER);
-		when(user.getEmailId()).thenReturn(EMAIL_ID);
-		when(user.getFirstName()).thenReturn(FIRST_NAME);
-		when(user.getLastName()).thenReturn(LAST_NAME);
-		when(user.getLatitude()).thenReturn(LATITUDE);
-		when(user.getLongitude()).thenReturn(LONGITUDE);
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
+			assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+		}
 
-		final var response = userService.retrieve(EMAIL_ID);
-		final var userDetailDtoRecieved = response.getBody();
+		@Test
+		@DisplayName("Giving Invalid Email-id")
+		void login_whenWrongEmailIdIsProvided_throwException() {
+			final var userLoginRequest = mock(UserLoginRequest.class);
+			when(userLoginRequest.getEmailId()).thenReturn(EMAIL_ID);
+			when(userLoginRequest.getPassword()).thenReturn(PASSWORD);
+			when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.empty());
 
-		assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
-		assertThat(response.getBody()).isInstanceOf(UserDetailDto.class);
-		assertEquals(EMAIL_ID, userDetailDtoRecieved.getEmailId());
-		assertEquals(FIRST_NAME, userDetailDtoRecieved.getFirstName());
-		assertEquals(LAST_NAME, userDetailDtoRecieved.getLastName());
-		assertEquals(CONTACT_NUMBER, userDetailDtoRecieved.getContactNumber());
-		assertEquals(LATITUDE, userDetailDtoRecieved.getLatitude());
-		assertEquals(LONGITUDE, userDetailDtoRecieved.getLongitude());
-	}
+			assertThrows(NoSuchElementException.class, () -> userService.login(userLoginRequest));
+		}
 
-	@Test
-	void retreive_whenWrongEmailIdIsProvided_throwError() {
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.empty());
+		@Test
+		@DisplayName("Giving Incorrect Password")
+		void login_whenWrongPasswordIsProvided_throwException() {
+			final var userLoginRequest = mock(UserLoginRequest.class);
+			final var user = mock(User.class);
+			when(user.getPassword()).thenReturn(RandomStringUtils.random(10));
+			when(userLoginRequest.getEmailId()).thenReturn(EMAIL_ID);
+			when(userLoginRequest.getPassword()).thenReturn(PASSWORD);
+			when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
+			when(passwordEncoder.matches(userLoginRequest.getPassword(), user.getPassword())).thenReturn(false);
 
-		assertThrows(NoSuchElementException.class, () -> userService.retrieve(EMAIL_ID));
-	}
+			assertThrows(UsernameNotFoundException.class, () -> userService.login(userLoginRequest));
+		}
 
-	@Test
-	void login_whenCorrectCredentialsAreProvided_jwtIsReturned() {
-		final var userLoginRequest = mock(UserLoginRequest.class);
-		final var user = mock(User.class);
-		when(user.getPassword()).thenReturn(PASSWORD);
-		when(userLoginRequest.getEmailId()).thenReturn(EMAIL_ID);
-		when(userLoginRequest.getPassword()).thenReturn(PASSWORD);
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
-		when(passwordEncoder.matches(userLoginRequest.getPassword(), user.getPassword())).thenReturn(true);
-		Mockito.doReturn(ResponseEntity.ok(null)).when(responseEntityUtils).generateSuccessLoginResponse(user);
-
-		final var response = userService.login(userLoginRequest);
-
-		assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
-	}
-
-	@Test
-	void login_whenWrongEmailIdIsProvided_throwException() {
-		final var userLoginRequest = mock(UserLoginRequest.class);
-		when(userLoginRequest.getEmailId()).thenReturn(EMAIL_ID);
-		when(userLoginRequest.getPassword()).thenReturn(PASSWORD);
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.empty());
-
-		assertThrows(NoSuchElementException.class, () -> userService.login(userLoginRequest));
-	}
-
-	@Test
-	void login_whenWrongPasswordIsProvided_throwException() {
-		final var userLoginRequest = mock(UserLoginRequest.class);
-		final var user = mock(User.class);
-		when(user.getPassword()).thenReturn(RandomStringUtils.random(10));
-		when(userLoginRequest.getEmailId()).thenReturn(EMAIL_ID);
-		when(userLoginRequest.getPassword()).thenReturn(PASSWORD);
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
-		when(passwordEncoder.matches(userLoginRequest.getPassword(), user.getPassword())).thenReturn(false);
-
-		assertThrows(UsernameNotFoundException.class, () -> userService.login(userLoginRequest));
-	}
-
-	@Test
-	void retreiveCredibility_whenCorrectEmailIdIsProvided_returnsUsersCredibilityPointsRepresentingRequestsFulfilled() {
-		final var user = mock(User.class);
-		final var userId = UUID.randomUUID();
-		when(user.getId()).thenReturn(userId);
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
-		when(requestRepository.findByFulfilledByUserId(userId)).thenReturn(List.of(new Request(), new Request()));
-
-		final var response = userService.retreiveCredibility(EMAIL_ID);
-
-		assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
-		assertTrue(response.getBody().toString().contains("\"credibility\":2"));
-	}
-
-	@Test
-	void rereiveFollowers_whenCorrectEmailIdProvided_returnsListOfUsersFollowingLoggedInUser() {
-		final var user = mock(User.class);
-		when(user.getFollowers()).thenReturn(Set.of());
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
-
-		final var response = userService.rereiveFollowers(EMAIL_ID);
-
-		assertNotNull(response.getBody());
-		assertEquals(0, response.getBody().size());
-	}
-
-	@Test
-	void rereiveFollowing_whenCorrectEmailIdProvided_returnsListOfUsersLoggedInUserIsFollowing() {
-		final var user = mock(User.class);
-		when(user.getFollowing()).thenReturn(Set.of());
-		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.of(user));
-
-		final var response = userService.rereiveFollowing(EMAIL_ID);
-
-		assertNotNull(response.getBody());
-		assertEquals(0, response.getBody().size());
 	}
 
 }

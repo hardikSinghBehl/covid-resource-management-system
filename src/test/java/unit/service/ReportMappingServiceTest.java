@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,7 @@ import com.hardik.pomfrey.request.ReportCreationRequest;
 import com.hardik.pomfrey.service.ReportMappingService;
 import com.hardik.pomfrey.utility.ResponseEntityUtils;
 
+@DisplayName("When Service Is Called To Raise A New Report")
 class ReportMappingServiceTest {
 
 	private static final String EMAIL_ID = "hardik.behl7444@gmail.com";
@@ -42,6 +44,7 @@ class ReportMappingServiceTest {
 	}
 
 	@Test
+	@DisplayName("Giving Correct Email-id And Request Input")
 	void create_whenCorrectEmailIsProvided_reportIsRegisteredInDatabase() {
 		final var reportCreationRequest = mock(ReportCreationRequest.class);
 		final var user = mock(User.class);
@@ -63,6 +66,7 @@ class ReportMappingServiceTest {
 	}
 
 	@Test
+	@DisplayName("Giving Wrong Email-id")
 	void create_whenWrongEmailIdIsProvided_throwError() {
 		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.empty());
 

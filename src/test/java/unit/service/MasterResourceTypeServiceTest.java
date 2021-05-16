@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.hardik.pomfrey.entity.MasterResourceType;
@@ -28,6 +29,7 @@ class MasterResourceTypeServiceTest {
 	}
 
 	@Test
+	@DisplayName("When API to call master-resource-types records from the Database")
 	void retreive_whenCalled_returnsListOfMasterResourceTypes() {
 		when(masterResourceTypeRepository.findAll()).thenReturn(List.of(new MasterResourceType(),
 				new MasterResourceType(), new MasterResourceType(), new MasterResourceType()));

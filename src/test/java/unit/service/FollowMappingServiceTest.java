@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -23,6 +24,7 @@ import com.hardik.pomfrey.request.FollowToggleRequest;
 import com.hardik.pomfrey.service.FollowMappingService;
 import com.hardik.pomfrey.utility.ResponseEntityUtils;
 
+@DisplayName("Follow Service Is Called")
 public class FollowMappingServiceTest {
 
 	private static final String EMAIL_ID = "hardik.behl7444@gmail.com";
@@ -44,6 +46,7 @@ public class FollowMappingServiceTest {
 	}
 
 	@Test
+	@DisplayName("Giving Wrong User Email-id")
 	void toggle_whenWrongEmailIsProvided_throwsException() {
 		when(userRepository.findByEmailId(EMAIL_ID)).thenReturn(Optional.empty());
 
@@ -51,6 +54,7 @@ public class FollowMappingServiceTest {
 	}
 
 	@Test
+	@DisplayName("When Logged-in User Follows Other User Initially")
 	void toggle_whenUserIsFollowingAnotherInitially_followMappingCreatedSuccessfullyInDatabase() {
 		final var followToggleRequest = mock(FollowToggleRequest.class);
 		final var followMapping = mock(FollowMapping.class);
@@ -72,6 +76,7 @@ public class FollowMappingServiceTest {
 	}
 
 	@Test
+	@DisplayName("When Logged-in User Unfollows A Followed User")
 	void toggle_whenLoggedInUserUnfollowsUser_updateFollowMappingInDatabase() {
 		final var followToggleRequest = mock(FollowToggleRequest.class);
 		final var followMapping = mock(FollowMapping.class);
@@ -93,6 +98,7 @@ public class FollowMappingServiceTest {
 	}
 
 	@Test
+	@DisplayName("When Logged-in User Re-follows A Past Followed User")
 	void toggle_whenLoggedInUserReFollowsUser_updateFollowMappingInDatabase() {
 		final var followToggleRequest = mock(FollowToggleRequest.class);
 		final var followMapping = mock(FollowMapping.class);
